@@ -40,8 +40,8 @@ app.get("/jokes/:id", async (req, res) => {
     // check to see if a joke with that id actually exists
     if (typeof jokeById === "undefined") {
       res.send({
-        error: `Joke with id ${id} does not exist.`
-      })
+        error: `Joke with id ${id} does not exist.`,
+      });
     } else {
       // return the joke with id = id to the client (response)
       res.send(jokeById);
@@ -49,7 +49,46 @@ app.get("/jokes/:id", async (req, res) => {
   }
 });
 
-//3. GET a jokes by filtering on the joke type
+//3. GET a jokes by filtering on the joke type ('http://localhost:3000/filter?type=Puns')
+app.get("/filter", async (req, res) => {
+  // debugging
+  console.log("req.query = ", req.query);
+
+  if (Object.keys(req.query).length === 0) {
+    // for some reason, there were no parameters in the request
+    res.send({
+      error: `/filter: No parameters were sent in the request`,
+    });
+  }
+  // check to see if 'type' is one of the query parameters
+  else if (req.query.hasOwnProperty("type")) {
+    // retrieve the value for 'type' from the request
+    const type = req.query.type;
+    // array that will be sent in the response
+    let jokesByType = [];
+    for (let i = 0; i < jokes.length; i++) {
+      if (jokes[i].jokeType.toLowerCase() === type.toLowerCase()) {
+        // add the joke that has that type to the output array
+        jokesByType.push(jokes[i]);
+      }
+    }
+    // return array of jokes with jokeType = type to the client (response)
+    if(jokesByType.length === 0){
+      res.send({
+        jokes: jokesByType,
+        message: `There are no jokes that are of type \'${type}.\'`
+      })
+    } else {
+      res.send(jokesByType);
+    }
+    
+    
+  } else {
+    res.send({
+      error: `/filter: Please add \'type\' as a query parameter.`,
+    });
+  }
+});
 
 //4. POST a new joke
 
