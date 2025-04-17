@@ -8,14 +8,46 @@ const masterKey = "4VGP2DN-6EWM4SJ-N6FGRHV-Z3PR3TT";
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //1. GET a random joke
-app.get('/random', async (req, res) => {
+app.get("/random", async (req, res) => {
+  // debugging
+  console.log("req.params = ", req.params);
   // Retrieve a random entry from the 'jokes' array
-  let joke = jokes[Math.floor(Math.random() * jokes.length)];
+  let joke = await jokes[Math.floor(Math.random() * jokes.length)];
+  console.log("random joke = ", joke);
   // return the randomly generated joke to the client (response)
   res.send(joke);
 });
 
-//2. GET a specific joke
+//2. GET a specific joke (http://localhost:3000/jokes/2)
+app.get("/jokes/:id", async (req, res) => {
+  // retrieve the id from the query parameters
+  let id = req.params.id;
+  console.log(`typeof(${id}) = `, typeof id);
+  id = Number(id);
+  console.log(`typeof(${id}) = `, typeof id);
+  if (Number.isNaN(id)) {
+    // id is not a number, throw an error
+    res.send({
+      error: `${id} is not a number. Please enter a numeric value for the id.`,
+    });
+  } else {
+    // Normally, I'd traverse the data using a loop but since I see that
+    // a joke with id = id is the idth - 1 entry in the jokes array, I'm just
+    // going to retrieve that entry in the array
+    let jokeById = await jokes[id - 1];
+    console.log("jokeById = ", jokeById);
+
+    // check to see if a joke with that id actually exists
+    if (typeof jokeById === "undefined") {
+      res.send({
+        error: `Joke with id ${id} does not exist.`
+      })
+    } else {
+      // return the joke with id = id to the client (response)
+      res.send(jokeById);
+    }
+  }
+});
 
 //3. GET a jokes by filtering on the joke type
 
