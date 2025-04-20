@@ -5,6 +5,8 @@ const app = express();
 const port = 3000;
 const masterKey = "4VGP2DN-6EWM4SJ-N6FGRHV-Z3PR3TT";
 
+
+// Middleware to parse URL-encoded data (optional)
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //1. GET a random joke
@@ -73,16 +75,14 @@ app.get("/filter", async (req, res) => {
       }
     }
     // return array of jokes with jokeType = type to the client (response)
-    if(jokesByType.length === 0){
+    if (jokesByType.length === 0) {
       res.send({
         jokes: jokesByType,
-        message: `There are no jokes that are of type \'${type}.\'`
-      })
+        message: `There are no jokes that are of type \'${type}.\'`,
+      });
     } else {
       res.send(jokesByType);
     }
-    
-    
   } else {
     res.send({
       error: `/filter: Please add \'type\' as a query parameter.`,
@@ -90,7 +90,44 @@ app.get("/filter", async (req, res) => {
   }
 });
 
-//4. POST a new joke
+//4. POST a new joke ('http://localhost:3000/jokes', body: {jokeText, jokeType})
+app.post("/jokes", async (req, res) => {
+  // debugging purposes
+  let body = req.body;
+  console.log("request's body = ", body);
+  if (Object.keys(req.body).length === 0) {
+    // for some reason, a joke was not in the body of the request
+    res.send({
+      error: `/jokes: add a joke and it's type`,
+    });
+  } // check to see if 'type' & 'text' are in the body of the request
+  else if (req.body.hasOwnProperty("text") && req.body.hasOwnProperty("type")) {
+    if (req.body.type.trim().length === 0 || req.body.text.trim().length === 0) {
+      // the text or the type of the joke is an empty string
+      res.send({
+        error: `/jokes: Please add a \'type\' & some \'text\' for your joke.`,
+      });
+    } else {
+      // new joke to be added
+      let newJoke = {
+        // in a real application, the database would randomly generate the id
+        id: jokes.length,
+        jokeText: req.body.text,
+        jokeType: req.body.type,
+      };
+      // In a real application, the newJoke would be sent to the database but this "applictaion"
+      // has no database so I'll "append" it to the jokes array.
+      jokes.push(newJoke);
+      // return the newly created joke to the client (response)
+      res.send(newJoke);
+
+    }
+  } else {
+    res.send({
+      error: `/jokes: Please add a \'type\' & some \'text\' for your joke.`,
+    });
+  }
+});
 
 //5. PUT a joke
 
