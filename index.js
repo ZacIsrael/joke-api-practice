@@ -32,10 +32,19 @@ app.get("/jokes/:id", async (req, res) => {
       error: `${id} is not a number. Please enter a numeric value for the id.`,
     });
   } else {
+    let jokeById;
     // Normally, I'd traverse the data using a loop but since I see that
     // a joke with id = id is the idth - 1 entry in the jokes array, I'm just
     // going to retrieve that entry in the array
-    let jokeById = await jokes[id - 1];
+    // jokeById = await jokes[id - 1];
+
+    for (let i = 0; i < jokes.length; i++) {
+      if (jokes[i].id === id) {
+        jokeById = jokes[i];
+        break;
+      }
+    }
+
     console.log("jokeById = ", jokeById);
 
     // check to see if a joke with that id actually exists
@@ -169,11 +178,19 @@ app.put("/jokes/:id", async (req, res) => {
           error: `PUT: /jokes/${id}: Please add a \'type\' & some \'text\' for the joke.`,
         });
       } else {
+        let jokeById;
         // Normally, I'd traverse the data using a loop but since I see that
         // a joke with id = id is the idth - 1 entry in the jokes array, I'm just
         // going to retrieve that entry in the array
-        let jokeById = await jokes[id - 1];
-        console.log("jokeById = ", jokeById);
+        // jokeById = await jokes[id - 1];
+
+        for (let i = 0; i < jokes.length; i++) {
+          if (jokes[i].id === id) {
+            jokeById = jokes[i];
+            break;
+          }
+        }
+        console.log("PUT: jokeById = ", jokeById);
 
         // check to see if a joke with that id actually exists
         if (typeof jokeById === "undefined") {
@@ -225,19 +242,29 @@ app.patch("/jokes/:id", async (req, res) => {
       console.log("request's body = ", body);
 
       if (
-        (typeof(req.body.type) !== "string" || req.body.type.trim().length === 0) &&
-        (typeof(req.body.text) !== "string" || req.body.text.trim().length === 0)
+        (typeof req.body.type !== "string" ||
+          req.body.type.trim().length === 0) &&
+        (typeof req.body.text !== "string" || req.body.text.trim().length === 0)
       ) {
         // the text AND the type of the joke is an empty string
         res.send({
           error: `PATCH: /jokes/${id}: Please add a \'type\' OR some \'text\' for the joke with id = ${id} so it can be updated.`,
         });
       } else {
+        let jokeById;
         // Normally, I'd traverse the data using a loop but since I see that
         // a joke with id = id is the idth - 1 entry in the jokes array, I'm just
         // going to retrieve that entry in the array
-        let jokeById = await jokes[id - 1];
-        console.log("jokeById = ", jokeById);
+        // jokeById = await jokes[id - 1];
+
+        for (let i = 0; i < jokes.length; i++) {
+          if (jokes[i].id === id) {
+            jokeById = jokes[i];
+            break;
+          }
+        }
+
+        console.log("PATCH: jokeById = ", jokeById);
 
         // check to see if a joke with that id actually exists
         if (typeof jokeById === "undefined") {
@@ -253,14 +280,14 @@ app.patch("/jokes/:id", async (req, res) => {
           // Edge cases for scenarios where a user updates the text OR the type,
           // only the type OR the text fields exists.
           // check to see if 'text' field exists
-          if (typeof(req.body.text) !== 'undefined') {
+          if (typeof req.body.text !== "undefined") {
             // only update the text if it's not an empty string
             if (req.body.text.trim().length !== 0) {
               jokeById.jokeText = req.body.text;
             }
           }
-          // check to see if type field exists 
-          if (typeof(req.body.type) !== 'undefined') {
+          // check to see if type field exists
+          if (typeof req.body.type !== "undefined") {
             // update the type on if it's not an empty string
             if (req.body.type.trim().length !== 0) {
               jokeById.jokeType = req.body.type;
@@ -275,7 +302,22 @@ app.patch("/jokes/:id", async (req, res) => {
   }
 });
 
-//7. DELETE Specific joke
+//7. DELETE Specific joke ('http://localhost:3000/jokes/:id')
+app.delete("/jokes/:id", async (req, res) => {
+  // deletes the joke with the specified id
+  // retrieve the id from the query parameters
+  let id = req.params.id;
+  console.log(`typeof(${id}) = `, typeof id);
+  id = Number(id);
+  console.log(`typeof(${id}) = `, typeof id);
+
+  if (Number.isNaN(id)) {
+    // id is not a number, throw an error
+    res.send({
+      error: `${id} is not a number. Please enter a numeric value for the id.`,
+    });
+  }
+});
 
 //8. DELETE All jokes
 
