@@ -123,7 +123,7 @@ app.post("/jokes", async (req, res) => {
       // new joke to be added
       let newJoke = {
         // in a real application, the database would randomly generate the id
-        id: jokes.length,
+        id: jokes.length + 1,
         jokeText: req.body.text,
         jokeType: req.body.type,
       };
