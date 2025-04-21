@@ -338,7 +338,12 @@ app.delete("/jokes/:id", async (req, res) => {
   }
 });
 
-//8. DELETE All jokes
+//8. DELETE All jokes ('http://localhost:3000/all')
+app.delete("/all", async (req, res) => {
+  // removes all of the elements in the jokes array
+  jokes.length = 0;
+  res.status(200).send('OK');
+});
 
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
