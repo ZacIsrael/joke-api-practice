@@ -195,7 +195,85 @@ app.put("/jokes/:id", async (req, res) => {
   }
 });
 
-//6. PATCH a joke
+//6. PATCH a joke ('http://localhost:3000/jokes/:id')
+app.patch("/jokes/:id", async (req, res) => {
+  // updates the joke with the specified id
+  // retrieve the id from the query parameters
+  let id = req.params.id;
+  console.log(`typeof(${id}) = `, typeof id);
+  id = Number(id);
+  console.log(`typeof(${id}) = `, typeof id);
+
+  if (Number.isNaN(id)) {
+    // id is not a number, throw an error
+    res.send({
+      error: `${id} is not a number. Please enter a numeric value for the id.`,
+    });
+  } else {
+    if (Object.keys(req.body).length === 0) {
+      // for some reason, the type of joke and its text were not in the body of the request
+      res.send({
+        error: `/jokes: add a joke and it's type`,
+      });
+    } // check to see if 'type' OR 'text' are in the body of the request
+    else if (
+      req.body.hasOwnProperty("text") ||
+      req.body.hasOwnProperty("type")
+    ) {
+      // debugging purposes
+      let body = req.body;
+      console.log("request's body = ", body);
+
+      if (
+        (typeof(req.body.type) !== "string" || req.body.type.trim().length === 0) &&
+        (typeof(req.body.text) !== "string" || req.body.text.trim().length === 0)
+      ) {
+        // the text AND the type of the joke is an empty string
+        res.send({
+          error: `PATCH: /jokes/${id}: Please add a \'type\' OR some \'text\' for the joke with id = ${id} so it can be updated.`,
+        });
+      } else {
+        // Normally, I'd traverse the data using a loop but since I see that
+        // a joke with id = id is the idth - 1 entry in the jokes array, I'm just
+        // going to retrieve that entry in the array
+        let jokeById = await jokes[id - 1];
+        console.log("jokeById = ", jokeById);
+
+        // check to see if a joke with that id actually exists
+        if (typeof jokeById === "undefined") {
+          res.send({
+            error: `Can't replace joke with id ${id} because it does not exist.`,
+          });
+        } else {
+          // In a real application, the jokeById's new fields would be sent to the database but this "applictaion"
+          // has no database so I'll just "modify" all the fields in jokeById.
+
+          // update jokeById's text and type
+
+          // Edge cases for scenarios where a user updates the text OR the type,
+          // only the type OR the text fields exists.
+          // check to see if 'text' field exists
+          if (typeof(req.body.text) !== 'undefined') {
+            // only update the text if it's not an empty string
+            if (req.body.text.trim().length !== 0) {
+              jokeById.jokeText = req.body.text;
+            }
+          }
+          // check to see if type field exists 
+          if (typeof(req.body.type) !== 'undefined') {
+            // update the type on if it's not an empty string
+            if (req.body.type.trim().length !== 0) {
+              jokeById.jokeType = req.body.type;
+            }
+          }
+
+          // return the joke with id = id to the client (response)
+          res.send(jokeById);
+        }
+      }
+    }
+  }
+});
 
 //7. DELETE Specific joke
 
