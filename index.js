@@ -317,18 +317,16 @@ app.delete("/jokes/:id", async (req, res) => {
       error: `${id} is not a number. Please enter a numeric value for the id.`,
     });
   } else {
-    
     // remove the joke with the specified id
-    // findIndex() returns the index of the joke with the specified id; if -1 is returned, 
+    // findIndex() returns the index of the joke with the specified id; if -1 is returned,
     // then that means that there is no element in the array with that id
-    const index = jokes.findIndex(joke => joke.id === id);
+    const index = jokes.findIndex((joke) => joke.id === id);
 
-    if(index !== -1){
-      // joke with specified exists 
+    if (index !== -1) {
+      // joke with specified exists
       // remove the joke with the specified id
       jokes.splice(index, 1);
-      res.status(200).send('OK');
-
+      res.status(200).send("OK");
     } else {
       // no joke with the specifed id
       res.send({
@@ -340,9 +338,19 @@ app.delete("/jokes/:id", async (req, res) => {
 
 //8. DELETE All jokes ('http://localhost:3000/all')
 app.delete("/all", async (req, res) => {
-  // removes all of the elements in the jokes array
-  jokes.length = 0;
-  res.status(200).send('OK');
+  // debugging
+  console.log("req.query = ", req.query);
+  // a user can't delete all of the jokes unless that have the necessary API
+  const userAPIKey = req.query.key;
+  if (userAPIKey === masterKey) {
+    // removes all of the elements in the jokes array
+    jokes.length = 0;
+    res.status(200).send("OK");
+  } else {
+    res.status(404).json({
+      error: `You are not authorized to delete all of the jokes.`,
+    });
+  }
 });
 
 app.listen(port, () => {
