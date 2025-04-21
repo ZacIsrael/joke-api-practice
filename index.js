@@ -316,6 +316,25 @@ app.delete("/jokes/:id", async (req, res) => {
     res.send({
       error: `${id} is not a number. Please enter a numeric value for the id.`,
     });
+  } else {
+    
+    // remove the joke with the specified id
+    // findIndex() returns the index of the joke with the specified id; if -1 is returned, 
+    // then that means that there is no element in the array with that id
+    const index = jokes.findIndex(joke => joke.id === id);
+
+    if(index !== -1){
+      // joke with specified exists 
+      // remove the joke with the specified id
+      jokes.splice(index, 1);
+      res.status(200).send('OK');
+
+    } else {
+      // no joke with the specifed id
+      res.send({
+        error: `Can't delete joke with id ${id} because it does not exist.`,
+      });
+    }
   }
 });
 
